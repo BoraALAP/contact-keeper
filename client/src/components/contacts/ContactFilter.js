@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext } from "react";
-import ContactContext from "../../context/contactContext";
+import ContactContext from "../../context/contact/contactContext";
 
 const ContactFilter = () => {
   const { filterContacts, clearFilter, filtered, contacts } = useContext(ContactContext);
@@ -14,7 +14,7 @@ const ContactFilter = () => {
   };
 
   useEffect(() => {
-    if(contacts.length !== 0 && filtered === null) {
+    if(contacts !== null && filtered === null) {
       text.current.value = ''
     }
   })
@@ -25,7 +25,7 @@ const ContactFilter = () => {
 
   return (
     <>
-    { contacts.length === 0 ? (<div></div>) : (
+    { contacts === null ? (<div></div>) : (
     <form>
       <input
         ref={text}

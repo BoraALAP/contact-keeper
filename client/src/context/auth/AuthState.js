@@ -2,6 +2,8 @@ import React, { useReducer } from "react";
 import authContext from "./authContext";
 import authReducer from "./authReducer";
 
+import axios from "axios";
+
 import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
@@ -12,6 +14,7 @@ import {
   LOGOUT,
   CLEAR_ERRORS
 } from "../../types";
+import setAuthToken from "../../utils/setAuthToken";
 
 const AuthState = props => {
   const initialState = {
@@ -19,24 +22,55 @@ const AuthState = props => {
     isAuthenticated: null,
     loading: true,
     error: null,
-    user: null,
+    user: null
   };
 
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  const config = {
+    header: {
+      "Content-Type": "application/json"
+    }
+  };
+
   // Load User
-  const loadUser = () => {
-    dispatch({ type: LOGIN_SUCCESS });
+  const loadUser = async (formData) => {
+    
+    if(localStorage.token){
+      setAuthToken(localStorage.token)
+    }
+    try {
+      const res = await axios.get("/api/auth", formData, config);
+      
+      
+      dispatch({ type: USER_LOADED, payload: res.data });
+    } catch (error) {
+      dispatch({type: AUTH_ERROR, payload:error})
+    }
   };
 
   // Register User
-  const registerUser = () => {
-    dispatch({ type: REGISTER_SUCCESS });
+  const register = async formData => {
+    try {
+      const res = await axios.post("/api/users", formData, config);
+      dispatch({ type: REGISTER_SUCCESS, payload: res.data });
+
+      loadUser()
+    } catch (error) {
+      dispatch({ type: REGISTER_FAIL, payload: error.response.data.msg });
+    }
   };
 
   // Login User
-  const loginUser = () => {
-    dispatch({ type: LOGIN_SUCCESS });
+  const login = async formData => {
+    try {
+      const res = await axios.post("/api/auth", formData, config);      
+      dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+
+      loadUser()
+    } catch (error) {
+      dispatch({ type: LOGIN_FAIL, payload: error.response.data.msg });
+    }
   };
 
   // Logout
@@ -52,14 +86,14 @@ const AuthState = props => {
   return (
     <authContext.Provider
       value={{
-        token:state.token,
+        token: state.token,
         loading: state.loading,
         error: state.error,
         user: state.user,
-        isAuthenticated :state.isAuthenticated,
+        isAuthenticated: state.isAuthenticated,
         loadUser,
-        registerUser,
-        loginUser,
+        register,
+        login,
         logout,
         clearErrors
       }}

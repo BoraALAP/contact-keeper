@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import ContactContext from "../../context/contactContext";
+import ContactContext from "../../context/contact/contactContext";
 
 const ContactForm = () => {
   const { addContact, current, clearCurrent, updateContact } = useContext(ContactContext);
@@ -15,7 +15,9 @@ const ContactForm = () => {
         type: "personal"
       });
     }
+    // eslint-disable-next-line
   }, [current, ContactContext]);
+
   const [contact, setContact] = useState({
     name: "",
     email: "",

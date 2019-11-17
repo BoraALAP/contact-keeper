@@ -11,18 +11,13 @@ const Contact = require("../models/Contact");
 // @access    Private
 router.get("/", auth, async (req, res) => {
   try {
-    const contact = await Contact.find({ user: req.user }).sort({ date: -1 });
+    const contact = await Contact.find({ user: req.user.id }).sort({ date: -1 });
     res.json(contact);
   } catch (err) {
     console.log(err.message);
     res.status(500).send("Server Error");
   }
 });
-
-
-
-
-
 
 // @route     POST api/contacts
 // @desc      Add new contact
@@ -49,7 +44,7 @@ router.post(
         email,
         phone,
         type,
-        user: req.user
+        user: req.user.id
       });
 
       const contact = await newContact.save();
@@ -86,7 +81,7 @@ router.put("/:id", auth, async (req, res) => {
     if (!contact) return res.status(404).json({ msg: "Contact not fould" });
 
     // Make sure user owns contact
-    if (contact.user.toString() !== req.user) {
+    if (contact.user.toString() !== req.user.id) {
       return res.status(401).json({ msg: "Not authorized" });
     }
 
@@ -118,7 +113,7 @@ router.delete("/:id", auth, async(req, res) => {
     if (!contact) return res.status(404).json({ msg: "Contact not fould" });
 
     // Make sure user owns contact
-    if (contact.user.toString() !== req.user) {
+    if (contact.user.toString() !== req.user.id) {
       return res.status(401).json({ msg: "Not authorized" });
     }
 
